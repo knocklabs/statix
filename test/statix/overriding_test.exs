@@ -1,9 +1,9 @@
 defmodule Statix.OverridingTest do
-  @server_port 8225
+  @port 8225
 
-  use Statix.TestCase, port: @server_port
+  use Statix.TestCase, port: @port
 
-  Application.put_env(:statix, __MODULE__, port: @server_port)
+  Application.put_env(:statix, __MODULE__, port: @port)
 
   use Statix
 
@@ -36,7 +36,7 @@ defmodule Statix.OverridingTest do
   end
 
   setup do
-    connect()
+    connect(port: @port)
   end
 
   test "increment/3" do

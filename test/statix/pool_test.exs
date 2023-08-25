@@ -1,12 +1,13 @@
 defmodule Statix.PoolingTest do
-  use Statix.TestCase
+  @port 8126
+  use Statix.TestCase, port: @port
 
   use Statix, runtime_config: true
 
   @pool_size 3
 
   setup do
-    connect(pool_size: @pool_size)
+    connect(port: @port, pool_size: @pool_size)
   end
 
   test "starts :pool_size number of ports and randomly picks one" do

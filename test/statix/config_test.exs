@@ -1,10 +1,11 @@
 defmodule Statix.ConfigTest do
-  use Statix.TestCase, async: false
+  @port 8127
+  use Statix.TestCase, async: false, port: @port
 
   use Statix, runtime_config: true
 
   test "connect/1" do
-    connect(tags: ["tag:test"], prefix: "foo")
+    connect(tags: ["tag:test"], prefix: "foo", port: @port)
 
     increment("sample", 2)
     assert_receive {:test_server, _, "foo.sample:2|c|#tag:test"}
@@ -13,7 +14,7 @@ defmodule Statix.ConfigTest do
   test "global tags when present" do
     Application.put_env(:statix, :tags, ["tag:test"])
 
-    connect()
+    connect(port: @port)
 
     increment("sample", 3)
     assert_receive {:test_server, _, "sample:3|c|#tag:test"}
@@ -27,7 +28,7 @@ defmodule Statix.ConfigTest do
   test "global connection-specific tags" do
     Application.put_env(:statix, __MODULE__, tags: ["tag:test"])
 
-    connect()
+    connect(port: @port)
 
     set("sample", 4)
     assert_receive {:test_server, _, "sample:4|s|#tag:test"}

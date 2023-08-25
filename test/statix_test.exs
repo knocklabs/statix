@@ -1,7 +1,8 @@
 runtime_config? = System.get_env("STATIX_TEST_RUNTIME_CONFIG") in ["1", "true"]
 
 defmodule StatixTest do
-  use Statix.TestCase
+  @port 8128
+  use Statix.TestCase, port: @port
 
   import ExUnit.CaptureLog
 
@@ -17,7 +18,7 @@ defmodule StatixTest do
   end
 
   setup do
-    connect()
+    connect(port: @port)
   end
 
   test "increment/1,2,3" do
