@@ -1,12 +1,14 @@
 defmodule Statix.Packet do
   @moduledoc false
 
-  use Bitwise
+  import Bitwise
 
-  otp_release = :erlang.system_info(:otp_release)
-  @addr_family if(otp_release >= '19', do: [1], else: [])
-
-  def header({n1, n2, n3, n4}, port) do
+  @doc """
+  Adds header to a built packet.
+  This is implemented to keep backwards compatibility with older OTP versions
+  (< 26). Will be eventually removed.
+  """
+  def add_header(built_packet, {n1, n2, n3, n4}, port) do
     true = Code.ensure_loaded?(:gen_udp)
 
     anc_data_part =
@@ -16,8 +18,9 @@ defmodule Statix.Packet do
         []
       end
 
-    @addr_family ++
+    header =
       [
+        _addr_family = 1,
         band(bsr(port, 8), 0xFF),
         band(port, 0xFF),
         band(n1, 0xFF),
@@ -25,10 +28,13 @@ defmodule Statix.Packet do
         band(n3, 0xFF),
         band(n4, 0xFF)
       ] ++ anc_data_part
+
+    header_as_bytes = Enum.into(header, <<>>, fn byte -> <<byte>> end)
+    [header_as_bytes | built_packet]
   end
 
-  def build(header, name, key, val, options) do
-    [header, key, ?:, val, ?|, metric_type(name)]
+  def build(prefix, name, key, val, options) do
+    [prefix, key, ?:, val, ?|, metric_type(name)]
     |> set_option(:sample_rate, options[:sample_rate])
     |> set_option(:tags, options[:tags])
   end
